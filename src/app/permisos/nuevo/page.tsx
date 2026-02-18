@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import ProyectoActividad from "@/components/wizards/permiso/ProyectoActividad";
 import DuenoProyecto from "@/components/wizards/permiso/DuenoProyecto";
+import Localizacion from "@/components/wizards/permiso/Localizacion";
 
 const PERMISO_STEPS: StepDefinition[] = [
   { label: "Proyecto o Actividad", icon: ClipboardList },
@@ -44,6 +45,31 @@ export interface PermisoFormData {
   // compania fields
   companiaSeleccionada: string;
   tieneDecreto: string;
+
+  // Step 3 – Localización (search inputs)
+  numeroCatastroSearch: string;
+  latitud: string;
+  longitud: string;
+  lambertX: string;
+  lambertY: string;
+
+  // Step 3 – Localización (catastro detail read-only results)
+  numeroCatastro: string;
+  catastroExt: string;
+  zonaInundable: string;
+  floodway: string;
+  areaAproximada: string;
+  calificacion: string;
+  municipioCatastro: string;
+  calificacionSobrepuesto: string;
+  barrio: string;
+  clasificacion: string;
+  zonaSitioHistorico: string;
+  coordenadas: string;
+  usosPermiso: string;
+  coordenadasNad83: string;
+  sueloGeologico: string;
+  calificacionesEfectivas: string;
 }
 
 const INITIAL_FORM_DATA: PermisoFormData = {
@@ -60,6 +86,29 @@ const INITIAL_FORM_DATA: PermisoFormData = {
   busquedaPersona: "",
   companiaSeleccionada: "",
   tieneDecreto: "no",
+
+  numeroCatastroSearch: "",
+  latitud: "",
+  longitud: "",
+  lambertX: "",
+  lambertY: "",
+
+  numeroCatastro: "",
+  catastroExt: "",
+  zonaInundable: "",
+  floodway: "",
+  areaAproximada: "",
+  calificacion: "",
+  municipioCatastro: "",
+  calificacionSobrepuesto: "",
+  barrio: "",
+  clasificacion: "",
+  zonaSitioHistorico: "",
+  coordenadas: "",
+  usosPermiso: "",
+  coordenadasNad83: "",
+  sueloGeologico: "",
+  calificacionesEfectivas: "",
 };
 
 export default function NuevoPermisoPage() {
@@ -122,7 +171,17 @@ export default function NuevoPermisoPage() {
             />
           )}
 
-          {currentStep > 1 && (
+          {currentStep === 2 && (
+            <Localizacion
+              formData={formData}
+              updateField={updateField}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              onCancel={() => window.history.back()}
+            />
+          )}
+
+          {currentStep > 2 && (
             <div className="rounded-lg bg-white p-8 shadow-sm">
               <p className="text-center text-gray-400">
                 Paso {currentStep + 1} — {PERMISO_STEPS[currentStep].label} — próximamente
