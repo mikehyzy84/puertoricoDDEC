@@ -11,6 +11,7 @@ import {
   Send,
 } from "lucide-react";
 import Municipio from "@/components/wizards/solicitud/Municipio";
+import InformacionGeneral from "@/components/wizards/solicitud/InformacionGeneral";
 
 /* ------------------------------------------------------------------ */
 /*  Step definitions per solicitud type                                */
@@ -39,10 +40,27 @@ const TIPO_LABELS: Record<string, string> = {
 export interface SolicitudFormData {
   // Step 1 – Municipio
   municipio: string;
+
+  // Step 2 – Información General (APA)
+  licencia: string;
+  profesion: string;
+  expedicionColegiacion: string;
+  expiracionColegiacion: string;
+  expedicionLicencia: string;
+  expiracionLicencia: string;
+  certificoInformacion: boolean;
 }
 
 const INITIAL_FORM_DATA: SolicitudFormData = {
   municipio: "",
+
+  licencia: "",
+  profesion: "",
+  expedicionColegiacion: "",
+  expiracionColegiacion: "",
+  expedicionLicencia: "",
+  expiracionLicencia: "",
+  certificoInformacion: false,
 };
 
 /* ------------------------------------------------------------------ */
@@ -109,7 +127,17 @@ export default function SolicitudTipoPage() {
             />
           )}
 
-          {currentStep > 0 && (
+          {currentStep === 1 && (
+            <InformacionGeneral
+              formData={formData}
+              updateField={updateField}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              onCancel={handleCancel}
+            />
+          )}
+
+          {currentStep > 1 && (
             <div className="rounded-lg bg-white p-8 shadow-sm">
               <p className="text-center text-gray-400">
                 Paso {currentStep + 1} — {steps[currentStep].label} —
