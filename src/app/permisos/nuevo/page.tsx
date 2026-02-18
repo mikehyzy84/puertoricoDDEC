@@ -17,6 +17,7 @@ import DuenoProyecto from "@/components/wizards/permiso/DuenoProyecto";
 import Localizacion from "@/components/wizards/permiso/Localizacion";
 import CatastrosAdicionales from "@/components/wizards/permiso/CatastrosAdicionales";
 import DuenoSolar from "@/components/wizards/permiso/DuenoSolar";
+import Documentos from "@/components/wizards/permiso/Documentos";
 
 const PERMISO_STEPS: StepDefinition[] = [
   { label: "Proyecto o Actividad", icon: ClipboardList },
@@ -247,7 +248,14 @@ export default function NuevoPermisoPage() {
             />
           )}
 
-          {currentStep > 4 && (
+          {currentStep === 6 && (
+            <Documentos
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+            />
+          )}
+
+          {currentStep !== 6 && currentStep > 4 && (
             <div className="rounded-lg bg-white p-8 shadow-sm">
               <p className="text-center text-gray-400">
                 Paso {currentStep + 1} — {PERMISO_STEPS[currentStep].label} — próximamente
