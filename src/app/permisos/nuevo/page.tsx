@@ -16,6 +16,7 @@ import ProyectoActividad from "@/components/wizards/permiso/ProyectoActividad";
 import DuenoProyecto from "@/components/wizards/permiso/DuenoProyecto";
 import Localizacion from "@/components/wizards/permiso/Localizacion";
 import CatastrosAdicionales from "@/components/wizards/permiso/CatastrosAdicionales";
+import DuenoSolar from "@/components/wizards/permiso/DuenoSolar";
 
 const PERMISO_STEPS: StepDefinition[] = [
   { label: "Proyecto o Actividad", icon: ClipboardList },
@@ -81,6 +82,19 @@ export interface PermisoFormData {
   codigoPostal: string;
   estado: string;
   puntoReferencia: string;
+
+  // Step 5 – Dueño del Solar
+  duenoNombre: string;
+  duenoInicial: string;
+  duenoApellido: string;
+  duenoTelefono: string;
+  duenoEmail: string;
+  duenoDireccionLinea1: string;
+  duenoDireccionLinea2: string;
+  duenoPais: string;
+  duenoEstado: string;
+  duenoCiudad: string;
+  duenoCodigoPostal: string;
 }
 
 const INITIAL_FORM_DATA: PermisoFormData = {
@@ -129,6 +143,18 @@ const INITIAL_FORM_DATA: PermisoFormData = {
   codigoPostal: "",
   estado: "Puerto Rico",
   puntoReferencia: "",
+
+  duenoNombre: "",
+  duenoInicial: "",
+  duenoApellido: "",
+  duenoTelefono: "",
+  duenoEmail: "",
+  duenoDireccionLinea1: "",
+  duenoDireccionLinea2: "",
+  duenoPais: "US",
+  duenoEstado: "",
+  duenoCiudad: "",
+  duenoCodigoPostal: "",
 };
 
 export default function NuevoPermisoPage() {
@@ -211,7 +237,17 @@ export default function NuevoPermisoPage() {
             />
           )}
 
-          {currentStep > 3 && (
+          {currentStep === 4 && (
+            <DuenoSolar
+              formData={formData}
+              updateField={updateField}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              onCancel={() => window.history.back()}
+            />
+          )}
+
+          {currentStep > 4 && (
             <div className="rounded-lg bg-white p-8 shadow-sm">
               <p className="text-center text-gray-400">
                 Paso {currentStep + 1} — {PERMISO_STEPS[currentStep].label} — próximamente
