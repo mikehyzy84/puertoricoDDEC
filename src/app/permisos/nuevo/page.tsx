@@ -17,6 +17,7 @@ import DuenoProyecto from "@/components/wizards/permiso/DuenoProyecto";
 import Localizacion from "@/components/wizards/permiso/Localizacion";
 import CatastrosAdicionales from "@/components/wizards/permiso/CatastrosAdicionales";
 import DuenoSolar from "@/components/wizards/permiso/DuenoSolar";
+import Arrendatario from "@/components/wizards/permiso/Arrendatario";
 import Documentos from "@/components/wizards/permiso/Documentos";
 import Finish from "@/components/wizards/permiso/Finish";
 
@@ -85,6 +86,9 @@ export interface PermisoFormData {
   estado: string;
   puntoReferencia: string;
 
+  // Step 6 – Arrendatario
+  tieneArrendatario: string;
+
   // Step 5 – Dueño del Solar
   duenoNombre: string;
   duenoInicial: string;
@@ -145,6 +149,8 @@ const INITIAL_FORM_DATA: PermisoFormData = {
   codigoPostal: "",
   estado: "Puerto Rico",
   puntoReferencia: "",
+
+  tieneArrendatario: "no",
 
   duenoNombre: "",
   duenoInicial: "",
@@ -261,29 +267,13 @@ export default function NuevoPermisoPage() {
           )}
 
           {currentStep === 5 && (
-            <div className="rounded-lg bg-white p-8 shadow-sm">
-              <p className="text-center text-gray-400">
-                Paso {currentStep + 1} — {PERMISO_STEPS[currentStep].label} — próximamente
-              </p>
-
-              {/* Placeholder navigation */}
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  className="rounded-md bg-[#2D6A4F] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#245a42] transition-colors"
-                >
-                  Paso Anterior
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="rounded-md bg-[#2A9D8F] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#238577] transition-colors"
-                >
-                  Siguiente Paso
-                </button>
-              </div>
-            </div>
+            <Arrendatario
+              formData={formData}
+              updateField={updateField}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              onCancel={() => window.history.back()}
+            />
           )}
         </div>
       </div>
