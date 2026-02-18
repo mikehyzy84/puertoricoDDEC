@@ -18,6 +18,7 @@ import Localizacion from "@/components/wizards/permiso/Localizacion";
 import CatastrosAdicionales from "@/components/wizards/permiso/CatastrosAdicionales";
 import DuenoSolar from "@/components/wizards/permiso/DuenoSolar";
 import Documentos from "@/components/wizards/permiso/Documentos";
+import Finish from "@/components/wizards/permiso/Finish";
 
 const PERMISO_STEPS: StepDefinition[] = [
   { label: "Proyecto o Actividad", icon: ClipboardList },
@@ -255,7 +256,11 @@ export default function NuevoPermisoPage() {
             />
           )}
 
-          {currentStep !== 6 && currentStep > 4 && (
+          {currentStep === 7 && (
+            <Finish onPrevious={handlePrevious} />
+          )}
+
+          {currentStep === 5 && (
             <div className="rounded-lg bg-white p-8 shadow-sm">
               <p className="text-center text-gray-400">
                 Paso {currentStep + 1} — {PERMISO_STEPS[currentStep].label} — próximamente
@@ -270,15 +275,13 @@ export default function NuevoPermisoPage() {
                 >
                   Paso Anterior
                 </button>
-                {currentStep < PERMISO_STEPS.length - 1 && (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="rounded-md bg-[#2A9D8F] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#238577] transition-colors"
-                  >
-                    Siguiente Paso
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="rounded-md bg-[#2A9D8F] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#238577] transition-colors"
+                >
+                  Siguiente Paso
+                </button>
               </div>
             </div>
           )}
