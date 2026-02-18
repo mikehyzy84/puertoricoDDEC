@@ -5,7 +5,6 @@ import {
   X,
   Search,
   FolderOpen,
-  FileText,
   MessageSquareMore,
   ShieldAlert,
   BadgeDollarSign,
@@ -32,6 +31,7 @@ interface SearchItem {
   icon: LucideIcon;
   href: string;
   category: Exclude<ModalTab, "Todos">;
+  badge?: string;
 }
 
 const items: SearchItem[] = [
@@ -44,11 +44,11 @@ const items: SearchItem[] = [
   { code: "MT", label: "Movimiento de Tierra", icon: FolderOpen, href: "/permisos/nuevo", category: "Permisos" },
 
   /* ---- Solicitudes ---- */
-  { code: "APA", label: "Autorización para emitir un Permiso Automático", icon: FileText, href: "/solicitudes/apa", category: "Solicitudes" },
-  { code: "APS", label: "Aprobación de Planos Seguros", icon: FileText, href: "/solicitudes/aps", category: "Solicitudes" },
-  { code: "ASP", label: "Aprobación de Sistema o Producto", icon: FileText, href: "/solicitudes/asp", category: "Solicitudes" },
-  { code: "CER", label: "Certificación de Equipos de Energía Renovable", icon: FileText, href: "/solicitudes/cer", category: "Solicitudes" },
-  { code: "CIR", label: "Certificado Instalador Renovable", icon: FileText, href: "/solicitudes/cir", category: "Solicitudes" },
+  { code: "APA", label: "Autorización para emitir un Permiso Automático", icon: FolderOpen, href: "/solicitudes/apa", category: "Solicitudes", badge: "Permisos" },
+  { code: "APS", label: "Aprobación de Planos Seguros", icon: FolderOpen, href: "/solicitudes/aps", category: "Solicitudes", badge: "Permisos" },
+  { code: "ASP", label: "Aprobación de Sistema o Producto", icon: FolderOpen, href: "/solicitudes/asp", category: "Solicitudes", badge: "Permisos" },
+  { code: "CER", label: "Certificación de Equipos de Energía Renovable", icon: FolderOpen, href: "/solicitudes/cer", category: "Solicitudes", badge: "Permisos" },
+  { code: "CIR", label: "Certificado Instalador Renovable", icon: FolderOpen, href: "/solicitudes/cir", category: "Solicitudes", badge: "Permisos" },
 
   /* ---- Consultas ---- */
   { code: "CCO", label: "Consulta de Caso de Obra (Discrecional)", icon: MessageSquareMore, href: "/consultas/cco", category: "Consultas" },
@@ -211,6 +211,12 @@ export default function SearchModal({
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#2D6A4F]/10 text-[#2D6A4F]">
                   <Icon className="h-5 w-5" />
                 </span>
+                {item.badge && (
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#E76F51]/10 px-2 py-0.5 text-xs font-semibold text-[#E76F51]">
+                    <FolderOpen className="h-3 w-3" />
+                    {item.badge}
+                  </span>
+                )}
                 <div className="min-w-0 flex-1">
                   <span className="mr-2 text-xs font-bold text-[#2D6A4F]">
                     {item.code}
