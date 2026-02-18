@@ -13,6 +13,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import ProyectoActividad from "@/components/wizards/permiso/ProyectoActividad";
+import DuenoProyecto from "@/components/wizards/permiso/DuenoProyecto";
 
 const PERMISO_STEPS: StepDefinition[] = [
   { label: "Proyecto o Actividad", icon: ClipboardList },
@@ -33,6 +34,16 @@ export interface PermisoFormData {
   fondosFederales: string;
   designacion: string;
   descripcion: string;
+
+  // Step 2 – Dueño del Proyecto
+  tipoDueno: "usted" | "otra_persona" | "compania";
+  // otra_persona fields
+  ciudadania: string;
+  tipoIdentificacion: string;
+  busquedaPersona: string;
+  // compania fields
+  companiaSeleccionada: string;
+  tieneDecreto: string;
 }
 
 const INITIAL_FORM_DATA: PermisoFormData = {
@@ -42,6 +53,13 @@ const INITIAL_FORM_DATA: PermisoFormData = {
   fondosFederales: "no_aplica",
   designacion: "no_aplica",
   descripcion: "",
+
+  tipoDueno: "usted",
+  ciudadania: "",
+  tipoIdentificacion: "ssn",
+  busquedaPersona: "",
+  companiaSeleccionada: "",
+  tieneDecreto: "no",
 };
 
 export default function NuevoPermisoPage() {
@@ -94,7 +112,17 @@ export default function NuevoPermisoPage() {
             />
           )}
 
-          {currentStep > 0 && (
+          {currentStep === 1 && (
+            <DuenoProyecto
+              formData={formData}
+              updateField={updateField}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              onCancel={() => window.history.back()}
+            />
+          )}
+
+          {currentStep > 1 && (
             <div className="rounded-lg bg-white p-8 shadow-sm">
               <p className="text-center text-gray-400">
                 Paso {currentStep + 1} — {PERMISO_STEPS[currentStep].label} — próximamente
