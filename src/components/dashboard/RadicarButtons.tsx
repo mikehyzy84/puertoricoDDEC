@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   FolderOpen,
   FileText,
@@ -8,43 +9,46 @@ import {
   BadgeDollarSign,
   LayoutGrid,
 } from "lucide-react";
+import SearchModal, {
+  type ModalTab,
+} from "@/components/shared/SearchModal";
 
 const radicarItems = [
   {
     label: "Permisos",
     icon: FolderOpen,
     color: "orange" as const,
-    href: "/permisos/nuevo",
+    tab: "Permisos" as ModalTab,
   },
   {
     label: "Solicitudes",
     icon: FileText,
     color: "teal" as const,
-    href: "/solicitudes",
+    tab: "Solicitudes" as ModalTab,
   },
   {
     label: "Consultas",
     icon: MessageSquareMore,
     color: "teal" as const,
-    href: "/consultas",
+    tab: "Consultas" as ModalTab,
   },
   {
     label: "Querellas",
     icon: ShieldAlert,
     color: "orange" as const,
-    href: "/querellas",
+    tab: "Todos" as ModalTab,
   },
   {
     label: "Incentivos",
     icon: BadgeDollarSign,
     color: "teal" as const,
-    href: "/incentivos",
+    tab: "Incentivos" as ModalTab,
   },
   {
     label: "Todos",
     icon: LayoutGrid,
     color: "orange" as const,
-    href: "#",
+    tab: "Todos" as ModalTab,
   },
 ];
 
@@ -62,6 +66,14 @@ const colorStyles = {
 };
 
 export default function RadicarButtons() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTab, setModalTab] = useState<ModalTab>("Todos");
+
+  function openModal(tab: ModalTab) {
+    setModalTab(tab);
+    setModalOpen(true);
+  }
+
   return (
     <section>
       <h2 className="text-lg font-semibold text-[#1B4332] mb-4">Radicar</h2>
@@ -70,19 +82,25 @@ export default function RadicarButtons() {
           const styles = colorStyles[item.color];
           const Icon = item.icon;
           return (
-            <a
+            <button
               key={item.label}
-              href={item.href}
+              onClick={() => openModal(item.tab)}
               className={`${styles.bg} ${styles.hover} ${styles.ring} flex flex-col items-center justify-center gap-3 rounded-xl px-4 py-6 text-white shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`}
             >
               <Icon className="h-10 w-10" strokeWidth={1.5} />
               <span className="text-sm font-semibold tracking-wide">
                 {item.label}
               </span>
-            </a>
+            </button>
           );
         })}
       </div>
+
+      <SearchModal
+        open={modalOpen}
+        defaultTab={modalTab}
+        onClose={() => setModalOpen(false)}
+      />
     </section>
   );
 }
