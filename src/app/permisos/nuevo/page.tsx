@@ -15,6 +15,7 @@ import {
 import ProyectoActividad from "@/components/wizards/permiso/ProyectoActividad";
 import DuenoProyecto from "@/components/wizards/permiso/DuenoProyecto";
 import Localizacion from "@/components/wizards/permiso/Localizacion";
+import CatastrosAdicionales from "@/components/wizards/permiso/CatastrosAdicionales";
 
 const PERMISO_STEPS: StepDefinition[] = [
   { label: "Proyecto o Actividad", icon: ClipboardList },
@@ -70,6 +71,16 @@ export interface PermisoFormData {
   coordenadasNad83: string;
   sueloGeologico: string;
   calificacionesEfectivas: string;
+
+  // Step 4 – Catastros Adicionales
+  cabidaPropiedad: string;
+  cabidaUnidad: string;
+  municipioAdicional: string;
+  direccionFisica: string;
+  tipoDireccion: string;
+  codigoPostal: string;
+  estado: string;
+  puntoReferencia: string;
 }
 
 const INITIAL_FORM_DATA: PermisoFormData = {
@@ -109,6 +120,15 @@ const INITIAL_FORM_DATA: PermisoFormData = {
   coordenadasNad83: "",
   sueloGeologico: "",
   calificacionesEfectivas: "",
+
+  cabidaPropiedad: "",
+  cabidaUnidad: "",
+  municipioAdicional: "",
+  direccionFisica: "",
+  tipoDireccion: "urbana",
+  codigoPostal: "",
+  estado: "Puerto Rico",
+  puntoReferencia: "",
 };
 
 export default function NuevoPermisoPage() {
@@ -181,7 +201,17 @@ export default function NuevoPermisoPage() {
             />
           )}
 
-          {currentStep > 2 && (
+          {currentStep === 3 && (
+            <CatastrosAdicionales
+              formData={formData}
+              updateField={updateField}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              onCancel={() => window.history.back()}
+            />
+          )}
+
+          {currentStep > 3 && (
             <div className="rounded-lg bg-white p-8 shadow-sm">
               <p className="text-center text-gray-400">
                 Paso {currentStep + 1} — {PERMISO_STEPS[currentStep].label} — próximamente
