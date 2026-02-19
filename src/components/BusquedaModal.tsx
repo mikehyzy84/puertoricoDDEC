@@ -1,9 +1,22 @@
+"use client";
+
 import { useState } from "react";
+import Link from "next/link";
 
-// Search modal that opens when Radicar buttons are clicked
-// Matches screenshot exactly: tabs at top, search bar, list items with RADICAR buttons
+interface BusquedaModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  initialTab?: string;
+}
 
-export default function BusquedaModal({ isOpen, onClose, initialTab = "Permisos" }) {
+interface ListItem {
+  code: string;
+  name: string;
+  desc: string;
+  route: string;
+}
+
+export default function BusquedaModal({ isOpen, onClose, initialTab = "Permisos" }: BusquedaModalProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [search, setSearch] = useState("");
 
@@ -11,26 +24,33 @@ export default function BusquedaModal({ isOpen, onClose, initialTab = "Permisos"
 
   const tabs = ["Permisos", "Solicitudes", "Consultas", "Incentivos", "Todos"];
 
-  const solicitudesItems = [
-    { code: "APA", name: "Autorización para emitir un Permiso Automático", desc: "Autorización para emitir un Permiso Automático" },
-    { code: "APS", name: "Aprobación de Planos Seguros", desc: "Aprobación de Planos Seguros" },
-    { code: "ASP", name: "Aprobación de Sistema o Producto", desc: "Aprobación de Sistema o Producto" },
-    { code: "CER", name: "Certificación de Equipos de Energía Renovable", desc: "Certificación de Equipos de Energía Renovable" },
-    { code: "CIR", name: "Certificado Instalador Renovable", desc: "Certificado Instalador Renovable" },
+  const permisosItems: ListItem[] = [
+    { code: "", name: "Permiso de Construcción", desc: "Permiso para construcción nueva, remodelación o demolición", route: "/permisos/nuevo" },
+    { code: "", name: "Permiso de Uso", desc: "Permiso de uso para establecimientos comerciales", route: "/permisos/nuevo" },
   ];
 
-  const consultasItems = [
-    { code: "", name: "Consultas Discrecionales", desc: "Este producto incluye las Consultas de Construcción (CCO), Consultas de Ubicación (CUB) y Variación a Lotificación (LOT)" },
-    { code: "PCA", name: "Pre-Consulta Arqueología Conservación Histórica", desc: "Pre-Consulta Arqueología Conservación Histórica" },
-    { code: "PCD", name: "Pre-Consulta Departamento de Evaluación de Cumplimiento Ambiental", desc: "Pre-Consulta Departamento de Evaluación de Cumplimiento Ambiental" },
-    { code: "PCE", name: "Pre-Consulta – Edificabilidad", desc: "Pre-Consulta – Edificabilidad" },
-    { code: "PCI", name: "Pre-Consulta Infraestructura", desc: "Pre-Consulta Infraestructura" },
+  const solicitudesItems: ListItem[] = [
+    { code: "APA", name: "Autorización para emitir un Permiso Automático", desc: "Autorización para emitir un Permiso Automático", route: "/solicitudes/apa" },
+    { code: "APS", name: "Aprobación de Planos Seguros", desc: "Aprobación de Planos Seguros", route: "/solicitudes/aps" },
+    { code: "ASP", name: "Aprobación de Sistema o Producto", desc: "Aprobación de Sistema o Producto", route: "/solicitudes/asp" },
+    { code: "CER", name: "Certificación de Equipos de Energía Renovable", desc: "Certificación de Equipos de Energía Renovable", route: "/solicitudes/cer" },
+    { code: "CIR", name: "Certificado Instalador Renovable", desc: "Certificado Instalador Renovable", route: "/solicitudes/cir" },
   ];
 
-  const getItems = () => {
+  const consultasItems: ListItem[] = [
+    { code: "", name: "Consultas Discrecionales", desc: "Este producto incluye las Consultas de Construcción (CCO), Consultas de Ubicación (CUB) y Variación a Lotificación (LOT)", route: "/consultas/discrecionales" },
+    { code: "PCA", name: "Pre-Consulta Arqueología Conservación Histórica", desc: "Pre-Consulta Arqueología Conservación Histórica", route: "/consultas/pca" },
+    { code: "PCD", name: "Pre-Consulta Departamento de Evaluación de Cumplimiento Ambiental", desc: "Pre-Consulta Departamento de Evaluación de Cumplimiento Ambiental", route: "/consultas/pcd" },
+    { code: "PCE", name: "Pre-Consulta – Edificabilidad", desc: "Pre-Consulta – Edificabilidad", route: "/consultas/pce" },
+    { code: "PCI", name: "Pre-Consulta Infraestructura", desc: "Pre-Consulta Infraestructura", route: "/consultas/pci" },
+  ];
+
+  const getItems = (): ListItem[] => {
     switch (activeTab) {
+      case "Permisos": return permisosItems;
       case "Solicitudes": return solicitudesItems;
       case "Consultas": return consultasItems;
+      case "Todos": return [...permisosItems, ...solicitudesItems, ...consultasItems];
       default: return solicitudesItems;
     }
   };
@@ -72,7 +92,6 @@ export default function BusquedaModal({ isOpen, onClose, initialTab = "Permisos"
                       padding: "0",
                     }}
                   >
-                    {t === "Permisos" && <span style={{ marginRight: "4px" }}>📋</span>}
                     {t}
                   </button>
                 ))}
@@ -109,7 +128,7 @@ export default function BusquedaModal({ isOpen, onClose, initialTab = "Permisos"
         <div style={{ flex: 1, overflowY: "auto", padding: "0 24px 20px 24px" }}>
           {items.map((item, i) => (
             <div
-              key={i}
+              key={`${item.code}-${item.name}-${i}`}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 padding: "14px 16px",
@@ -127,12 +146,7 @@ export default function BusquedaModal({ isOpen, onClose, initialTab = "Permisos"
                   {activeTab === "Consultas" && item.code === "" ? (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   ) : (
-                    <>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    </>
-                  )}
-                  {activeTab === "Solicitudes" && (
-                    <div style={{ position: "absolute", marginTop: "28px", fontSize: "8px", color: "#fff", fontWeight: "bold" }}>Permisos</div>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                   )}
                 </div>
                 <div>
@@ -142,14 +156,19 @@ export default function BusquedaModal({ isOpen, onClose, initialTab = "Permisos"
                   <div style={{ fontSize: "12px", color: "#777" }}>{item.desc}</div>
                 </div>
               </div>
-              <button style={{
-                border: "1px solid #999", borderRadius: "3px",
-                backgroundColor: "#fff", padding: "6px 16px",
-                fontSize: "12px", fontWeight: 700, cursor: "pointer",
-                fontFamily: "Arial", color: "#333", whiteSpace: "nowrap",
-              }}>
+              <Link
+                href={item.route}
+                onClick={onClose}
+                style={{
+                  border: "1px solid #999", borderRadius: "3px",
+                  backgroundColor: "#fff", padding: "6px 16px",
+                  fontSize: "12px", fontWeight: 700, cursor: "pointer",
+                  fontFamily: "Arial", color: "#333", whiteSpace: "nowrap",
+                  textDecoration: "none",
+                }}
+              >
                 RADICAR
-              </button>
+              </Link>
             </div>
           ))}
         </div>

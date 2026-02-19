@@ -1,9 +1,7 @@
-import { useState } from "react";
+"use client";
 
-// ═══════════════════════════════════════════
-// QUERELLA WIZARD - 6 Step Flow
-// Matches screenshots pages 15-18
-// ═══════════════════════════════════════════
+import { useState } from "react";
+import React from "react";
 
 const STEPS = [
   { label: "Municipio", icon: "building" },
@@ -13,6 +11,12 @@ const STEPS = [
   { label: "Resumen", icon: "list" },
   { label: "Someter", icon: "send" },
 ];
+
+const inputStyle: React.CSSProperties = {
+  width: "100%", border: "1px solid #ccc", borderRadius: "3px",
+  padding: "8px 10px", fontSize: "13px", fontFamily: "Arial",
+  outline: "none", boxSizing: "border-box",
+};
 
 export default function QuerellaWizard() {
   const [step, setStep] = useState(0);
@@ -32,6 +36,11 @@ export default function QuerellaWizard() {
         {step === 0 && <QStep1 />}
         {step === 1 && <QStep2 />}
         {step === 2 && <QStep3 />}
+        {step > 2 && (
+          <div style={{ textAlign: "center", padding: "40px", color: "#999", fontSize: "13px" }}>
+            Paso {step + 1} — {STEPS[step].label.replace("\n", " ")} — próximamente
+          </div>
+        )}
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", gap: "10px", padding: "20px 0" }}>
@@ -78,7 +87,7 @@ function QStep2() {
   return (
     <>
       <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px" }}>Información General de la Querella</h3>
-      
+
       <div style={{ marginBottom: "16px" }}>
         <div style={{ fontSize: "13px", fontWeight: 700, marginBottom: "8px" }}>Motivo de la querella:<span style={{ color: "red" }}>*</span></div>
         {["Ausencia de Permiso Requerido", "Incumplimiento con los términos del Permiso", "Permiso en incumplimiento con la ley y/o reglamento", "Con respecto al Profesional o Inspector Autorizado"].map((m) => (
@@ -99,7 +108,6 @@ function QStep2() {
               <input type="radio" name="tipoPermiso" style={{ accentColor: "#2b8a7a" }} /> {t}
             </label>
           ))}
-          {/* Otro text field */}
           <input type="text" style={{ ...inputStyle, marginTop: "4px" }} />
         </div>
 
@@ -144,7 +152,6 @@ function QStep3() {
         <FField label="Código postal:" style={{ width: "120px" }}><input type="text" style={inputStyle} /></FField>
       </div>
 
-      {/* Catastro search - same as permiso */}
       <div style={{ backgroundColor: "#e8f5e9", border: "1px solid #a5d6a7", borderRadius: "4px", padding: "12px 16px", marginBottom: "16px" }}>
         <div style={{ fontSize: "13px", fontWeight: 700, marginBottom: "6px", color: "#333" }}>
           Identifique la localización con una (1) de las siguientes opciones:
@@ -165,15 +172,12 @@ function QStep3() {
   );
 }
 
-// ═══════════════════════════════════════════
-// SHARED
-// ═══════════════════════════════════════════
-
-function QStepper({ currentStep, steps }) {
+// Shared components
+function QStepper({ currentStep, steps }: { currentStep: number; steps: typeof STEPS }) {
   return (
     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "20px 0" }}>
       {steps.map((s, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "flex-start" }}>
+        <div key={s.label} style={{ display: "flex", alignItems: "flex-start" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "80px" }}>
             <div style={{
               width: "40px", height: "40px", borderRadius: "50%",
@@ -191,7 +195,7 @@ function QStepper({ currentStep, steps }) {
   );
 }
 
-function FField({ label, required, children, style: extra }) {
+function FField({ label, required, children, style: extra }: { label: string; required?: boolean; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={{ marginBottom: "10px", ...extra }}>
       {label && <label style={{ display: "block", fontSize: "13px", color: "#333", marginBottom: "3px" }}>{label}{required && <span style={{ color: "red" }}>*</span>}</label>}
@@ -200,7 +204,7 @@ function FField({ label, required, children, style: extra }) {
   );
 }
 
-function Btn({ color, onClick, children }) {
+function Btn({ color, onClick, children }: { color: string; onClick?: () => void; children: React.ReactNode }) {
   return (
     <button onClick={onClick} style={{ color: "#fff", backgroundColor: color, border: "none", borderRadius: "4px", padding: "8px 16px", fontSize: "13px", fontWeight: 600, cursor: "pointer", fontFamily: "Arial", display: "flex", alignItems: "center", gap: "6px" }}>
       {children}
@@ -215,8 +219,6 @@ function SBtn() {
     </button>
   );
 }
-
-const inputStyle = { width: "100%", border: "1px solid #ccc", borderRadius: "3px", padding: "8px 10px", fontSize: "13px", fontFamily: "Arial", outline: "none", boxSizing: "border-box" };
 
 function LeftArrow() { return <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>; }
 function RightArrow() { return <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>; }
