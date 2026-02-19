@@ -31,24 +31,24 @@ export default function DDECMainPage() {
         </div>
 
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px" }}>
-          <RadicarButton label="Permisos" onClick={() => openModal("Permisos")}>
+          <RadicarButton label="Permisos" color="#E76F51" onClick={() => openModal("Permisos")}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
           </RadicarButton>
-          <RadicarButton label="Solicitudes" onClick={() => openModal("Solicitudes")}>
+          <RadicarButton label="Solicitudes" color="#2A9D8F" onClick={() => openModal("Solicitudes")}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           </RadicarButton>
-          <RadicarButton label="Consultas" onClick={() => openModal("Consultas")}>
+          <RadicarButton label="Consultas" color="#2A9D8F" onClick={() => openModal("Consultas")}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           </RadicarButton>
-          <RadicarButton label="Querellas" onClick={() => openModal("Todos")}>
+          <RadicarButton label="Querellas" color="#E76F51" onClick={() => openModal("Todos")}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </RadicarButton>
-          <RadicarButton label="Incentivos" onClick={() => openModal("Incentivos")}>
+          <RadicarButton label="Incentivos" color="#2A9D8F" onClick={() => openModal("Incentivos")}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
           </RadicarButton>
         </div>
         <div>
-          <RadicarButton label="Todos" onClick={() => openModal("Todos")}>
+          <RadicarButton label="Todos" color="#E76F51" onClick={() => openModal("Todos")}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
           </RadicarButton>
         </div>
@@ -104,9 +104,9 @@ export default function DDECMainPage() {
             </div>
 
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead><tr>
+              <thead><tr style={{ backgroundColor: "#2D6A4F" }}>
                 {["Número Permiso","Última Modificación","Solicitante","Estado Actual","Acciones"].map((h) => (
-                  <th key={h} style={{ textAlign: "left", padding: "10px 12px", fontSize: "12px", fontWeight: 700, color: "#333", borderBottom: "2px solid #333" }}>{h}</th>
+                  <th key={h} style={{ textAlign: "left", padding: "10px 12px", fontSize: "12px", fontWeight: 700, color: "#fff" }}>{h}</th>
                 ))}
               </tr></thead>
               <tbody><tr><td colSpan={5} style={{ padding: "60px 0" }} /></tr></tbody>
@@ -139,7 +139,7 @@ export default function DDECMainPage() {
             </div>
 
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead><tr style={{ backgroundColor: "#c2703a" }}>
+              <thead><tr style={{ backgroundColor: "#2D6A4F" }}>
                 {["Nombre del Proyecto","Número de Proyecto","Fecha de Creación","Dueño del Proyecto","Dueño del Solar"].map((h) => (
                   <th key={h} style={{ color: "#fff", padding: "10px 12px", fontSize: "12px", fontWeight: 700, textAlign: "left" }}>{h}</th>
                 ))}
@@ -164,7 +164,7 @@ export default function DDECMainPage() {
   );
 }
 
-function RadicarButton({ label, children, onClick }: { label: string; children: React.ReactNode; onClick: () => void }) {
+function RadicarButton({ label, color, children, onClick }: { label: string; color: string; children: React.ReactNode; onClick: () => void }) {
   return (
     <div
       onClick={onClick}
@@ -172,9 +172,9 @@ function RadicarButton({ label, children, onClick }: { label: string; children: 
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick(); }}
       style={{
-        backgroundColor: "#2b8a7a", color: "#fff", borderRadius: "8px",
+        backgroundColor: color, color: "#fff", borderRadius: "8px",
         padding: "12px 16px", display: "inline-flex", alignItems: "center",
-        gap: "8px", cursor: "pointer", minWidth: "120px", fontSize: "15px", fontWeight: 700,
+        gap: "8px", cursor: "pointer", minWidth: "140px", fontSize: "15px", fontWeight: 700,
       }}
     >
       <div style={{
