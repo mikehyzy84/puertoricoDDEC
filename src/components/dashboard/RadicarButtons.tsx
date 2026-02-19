@@ -5,52 +5,36 @@ import {
   FolderOpen,
   FileText,
   MessageSquareMore,
-  ShieldAlert,
+  Building,
   BadgeDollarSign,
   LayoutGrid,
 } from "lucide-react";
 import SearchModal, {
   type ModalTab,
 } from "@/components/shared/SearchModal";
+import type { LucideIcon } from "lucide-react";
 
-const radicarItems = [
-  {
-    label: "Permisos",
-    icon: FolderOpen,
-    color: "orange" as const,
-    tab: "Permisos" as ModalTab,
-  },
-  {
-    label: "Solicitudes",
-    icon: FileText,
-    color: "teal" as const,
-    tab: "Solicitudes" as ModalTab,
-  },
-  {
-    label: "Consultas",
-    icon: MessageSquareMore,
-    color: "teal" as const,
-    tab: "Consultas" as ModalTab,
-  },
-  {
-    label: "Querellas",
-    icon: ShieldAlert,
-    color: "orange" as const,
-    tab: "Todos" as ModalTab,
-  },
-  {
-    label: "Incentivos",
-    icon: BadgeDollarSign,
-    color: "teal" as const,
-    tab: "Incentivos" as ModalTab,
-  },
-  {
-    label: "Todos",
-    icon: LayoutGrid,
-    color: "orange" as const,
-    tab: "Todos" as ModalTab,
-  },
+interface RadicarItem {
+  label: string;
+  icon: LucideIcon;
+  color: "orange" | "teal";
+  tab: ModalTab;
+}
+
+const mainRow: RadicarItem[] = [
+  { label: "Permisos", icon: FolderOpen, color: "orange", tab: "Permisos" },
+  { label: "Solicitudes", icon: FileText, color: "teal", tab: "Solicitudes" },
+  { label: "Consultas", icon: MessageSquareMore, color: "teal", tab: "Consultas" },
+  { label: "Querellas", icon: Building, color: "orange", tab: "Todos" },
+  { label: "Incentivos", icon: BadgeDollarSign, color: "teal", tab: "Incentivos" },
 ];
+
+const todosItem: RadicarItem = {
+  label: "Todos",
+  icon: LayoutGrid,
+  color: "orange",
+  tab: "Todos",
+};
 
 const colorStyles = {
   orange: {
@@ -65,6 +49,26 @@ const colorStyles = {
   },
 };
 
+function RadicarButton({
+  item,
+  onClick,
+}: {
+  item: RadicarItem;
+  onClick: () => void;
+}) {
+  const styles = colorStyles[item.color];
+  const Icon = item.icon;
+  return (
+    <button
+      onClick={onClick}
+      className={`${styles.bg} ${styles.hover} ${styles.ring} flex w-[140px] items-center gap-2.5 rounded-lg px-3 py-3 text-white shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`}
+    >
+      <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} />
+      <span className="text-sm font-semibold">{item.label}</span>
+    </button>
+  );
+}
+
 export default function RadicarButtons() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<ModalTab>("Todos");
@@ -76,24 +80,25 @@ export default function RadicarButtons() {
 
   return (
     <section>
-      <h2 className="text-lg font-semibold text-[#1B4332] mb-4">Radicar</h2>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        {radicarItems.map((item) => {
-          const styles = colorStyles[item.color];
-          const Icon = item.icon;
-          return (
-            <button
-              key={item.label}
-              onClick={() => openModal(item.tab)}
-              className={`${styles.bg} ${styles.hover} ${styles.ring} flex flex-col items-center justify-center gap-3 rounded-xl px-4 py-6 text-white shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`}
-            >
-              <Icon className="h-10 w-10" strokeWidth={1.5} />
-              <span className="text-sm font-semibold tracking-wide">
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
+      <h2 className="mb-4 text-lg font-semibold text-[#1B4332]">Radicar</h2>
+
+      {/* Row 1: 5 main buttons */}
+      <div className="flex flex-wrap gap-3">
+        {mainRow.map((item) => (
+          <RadicarButton
+            key={item.label}
+            item={item}
+            onClick={() => openModal(item.tab)}
+          />
+        ))}
+      </div>
+
+      {/* Row 2: Todos aligned left */}
+      <div className="mt-3 flex">
+        <RadicarButton
+          item={todosItem}
+          onClick={() => openModal(todosItem.tab)}
+        />
       </div>
 
       <SearchModal

@@ -1,5 +1,6 @@
 import RadicarButtons from "@/components/dashboard/RadicarButtons";
 import SolicitudesTramites from "@/components/dashboard/SolicitudesTramites";
+import PerfilesProyectos from "@/components/dashboard/PerfilesProyectos";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
         <h1 className="mb-6 text-2xl font-bold text-[#1B4332]">Mi Bandeja</h1>
         <RadicarButtons />
         <SolicitudesTramites />
+        <PerfilesProyectos />
       </div>
     </main>
   );
