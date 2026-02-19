@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { BusquedaModalProvider } from "@/context/BusquedaModalContext";
 import Navbar from "@/components/layout/Navbar";
+import GlobalBusquedaModal from "@/components/GlobalBusquedaModal";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,8 +31,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        {children}
+        <BusquedaModalProvider>
+          <Navbar />
+          {children}
+          <GlobalBusquedaModal />
+        </BusquedaModalProvider>
       </body>
     </html>
   );

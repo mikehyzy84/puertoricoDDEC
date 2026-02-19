@@ -1,19 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import BusquedaModal from "@/components/BusquedaModal";
 import React from "react";
+import { useBusquedaModal } from "@/context/BusquedaModalContext";
 
 export default function DDECMainPage() {
   const [activeFilter, setActiveFilter] = useState("Todos");
   const [activeStatus, setActiveStatus] = useState("No Pagados/No Sometidos");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalTab, setModalTab] = useState("Permisos");
-
-  function openModal(tab: string) {
-    setModalTab(tab);
-    setModalOpen(true);
-  }
+  const { openModal } = useBusquedaModal();
 
   return (
     <div style={{ fontFamily: "Arial, Helvetica, sans-serif", backgroundColor: "#fff", minHeight: "100vh" }}>
@@ -40,7 +34,7 @@ export default function DDECMainPage() {
           <RadicarButton label="Consultas" color="#2b8a7a" onClick={() => openModal("Consultas")}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           </RadicarButton>
-          <RadicarButton label="Querellas" color="#2b8a7a" onClick={() => openModal("Todos")}>
+          <RadicarButton label="Querellas" color="#2b8a7a" onClick={() => openModal("Querellas")}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </RadicarButton>
           <RadicarButton label="Incentivos" color="#2b8a7a" onClick={() => openModal("Incentivos")}>
@@ -155,11 +149,6 @@ export default function DDECMainPage() {
         </div>
       </div>
 
-      <BusquedaModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        initialTab={modalTab}
-      />
     </div>
   );
 }

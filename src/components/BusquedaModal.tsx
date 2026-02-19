@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface BusquedaModalProps {
@@ -20,9 +20,17 @@ export default function BusquedaModal({ isOpen, onClose, initialTab = "Permisos"
   const [activeTab, setActiveTab] = useState(initialTab);
   const [search, setSearch] = useState("");
 
+  // Sync activeTab when initialTab changes (e.g. opened from navbar menu)
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+      setSearch("");
+    }
+  }, [initialTab, isOpen]);
+
   if (!isOpen) return null;
 
-  const tabs = ["Permisos", "Solicitudes", "Consultas", "Incentivos", "Todos"];
+  const tabs = ["Permisos", "Solicitudes", "Consultas", "Querellas", "Incentivos", "Todos"];
 
   const permisosItems: ListItem[] = [
     { code: "", name: "Permiso de Construcción", desc: "Permiso para construcción nueva, remodelación o demolición", route: "/permisos/nuevo" },
@@ -45,13 +53,28 @@ export default function BusquedaModal({ isOpen, onClose, initialTab = "Permisos"
     { code: "PCI", name: "Pre-Consulta Infraestructura", desc: "Pre-Consulta Infraestructura", route: "/consultas/pci" },
   ];
 
+  const querellasItems: ListItem[] = [
+    { code: "", name: "Querella — Ausencia de Permiso Requerido", desc: "Radicar querella por ausencia de permiso requerido", route: "/querellas" },
+    { code: "", name: "Querella — Incumplimiento con Términos del Permiso", desc: "Radicar querella por incumplimiento con los términos del permiso", route: "/querellas" },
+    { code: "", name: "Querella — Incumplimiento con Ley/Reglamento", desc: "Permiso en incumplimiento con la ley y/o reglamento", route: "/querellas" },
+    { code: "", name: "Querella — Profesional o Inspector Autorizado", desc: "Con respecto al Profesional o Inspector Autorizado", route: "/querellas" },
+  ];
+
+  const incentivosItems: ListItem[] = [
+    { code: "", name: "Joven Empresario", desc: "Exención contributiva para jóvenes empresarios (16-35 años)", route: "/incentivos/joven-empresario" },
+    { code: "", name: "Residente Inversionista Individual", desc: "Ley 60 Cap. 2, Subtítulo B — Inversionista individual residente", route: "/incentivos/residente-inversionista" },
+    { code: "", name: "Exportación de Servicios", desc: "Sec. 2031.01 — Incentivos para exportación de servicios", route: "/incentivos/exportacion-servicios" },
+  ];
+
   const getItems = (): ListItem[] => {
     switch (activeTab) {
       case "Permisos": return permisosItems;
       case "Solicitudes": return solicitudesItems;
       case "Consultas": return consultasItems;
-      case "Todos": return [...permisosItems, ...solicitudesItems, ...consultasItems];
-      default: return solicitudesItems;
+      case "Querellas": return querellasItems;
+      case "Incentivos": return incentivosItems;
+      case "Todos": return [...permisosItems, ...solicitudesItems, ...consultasItems, ...querellasItems, ...incentivosItems];
+      default: return permisosItems;
     }
   };
 
