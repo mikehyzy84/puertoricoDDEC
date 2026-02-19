@@ -75,8 +75,22 @@ export default function Navbar() {
           {/* Email */}
           <span style={{ fontSize: "12px", color: "#fff" }}>apaviavidal@gmail.com</span>
 
-          {/* Gerencia de Permisos */}
-          <span style={{ fontSize: "12px", fontWeight: 700, color: "#fff", letterSpacing: "0.5px" }}>GERENCIA DE PERMISOS</span>
+          {/* Gerencia de Permisos logo */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {/* Government seal */}
+            <svg width="28" height="28" viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="48" stroke="#fff" strokeWidth="2" fill="none"/>
+              <circle cx="50" cy="50" r="42" stroke="#fff" strokeWidth="1" fill="none"/>
+              <path d="M50 15 L53 25 L63 25 L55 31 L58 41 L50 35 L42 41 L45 31 L37 25 L47 25 Z" fill="#fff"/>
+              <text x="50" y="58" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="700" fontFamily="Arial">GERENCIA</text>
+              <text x="50" y="68" textAnchor="middle" fill="#fff" fontSize="7" fontFamily="Arial">DE PERMISOS</text>
+              <path d="M20 75 Q50 85 80 75" stroke="#fff" strokeWidth="1" fill="none"/>
+            </svg>
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#fff", letterSpacing: "0.5px" }}>Gerencia</span>
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#fff", letterSpacing: "0.5px" }}>de Permisos</span>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
