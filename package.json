@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@arcgis/core": "^5.0.4",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^7.4.1",
     "class-variance-authority": "^0.7.1",

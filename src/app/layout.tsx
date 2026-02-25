@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import "@arcgis/core/assets/esri/themes/light/main.css";
 import { BusquedaModalProvider } from "@/context/BusquedaModalContext";
 import Navbar from "@/components/layout/Navbar";
 import GlobalBusquedaModal from "@/components/GlobalBusquedaModal";

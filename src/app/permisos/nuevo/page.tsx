@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useImperativeHandle, forwardRef, useEffect } from "react";
 import React from "react";
+import dynamic from "next/dynamic";
 import { useForm, FieldErrors, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useWizard } from "@/hooks/useWizard";
@@ -25,6 +26,22 @@ import type {
   PermisoArrendatario,
   PermisoLocalizacion,
 } from "@/types/permit";
+import type { CatastroResult } from "@/types/catastro";
+
+// Dynamically import LocationPicker to avoid SSR issues with ArcGIS
+const LocationPicker = dynamic(() => import("@/components/maps/LocationPicker"), {
+  ssr: false,
+  loading: () => (
+    <div style={{
+      width: "100%", height: "300px", backgroundColor: "#e0e8e4",
+      borderRadius: "4px", border: "1px solid #ccc",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      color: "#666", fontSize: "14px",
+    }}>
+      Cargando mapa...
+    </div>
+  ),
+});
 
 // ---------- Initial data ----------
 
@@ -422,7 +439,7 @@ interface Step3Props {
 }
 
 const Step3 = forwardRef<StepHandle, Step3Props>(function Step3({ data, onUpdate }, ref) {
-  const { register, trigger, getValues, watch } = useForm<PermisoLocalizacion>({
+  const { register, trigger, getValues, setValue, watch } = useForm<PermisoLocalizacion>({
     resolver: zodResolver(localizacionSchema) as Resolver<PermisoLocalizacion>,
     defaultValues: data,
     mode: "onBlur",
@@ -440,6 +457,31 @@ const Step3 = forwardRef<StepHandle, Step3Props>(function Step3({ data, onUpdate
     getValues: () => getValues() as unknown as Record<string, unknown>,
   }));
 
+  // When catastro lookup returns a result, populate all read-only detail fields
+  const handleCatastroResult = useCallback(
+    (result: CatastroResult) => {
+      const fields: (keyof CatastroResult)[] = [
+        "numeroCatastro", "catastroExt", "zonaInundable", "floodway",
+        "areaAproximada", "calificacion", "municipio", "calificacionSobrepuesto",
+        "barrio", "clasificacion", "zonaSitioHistorico", "coordenadas",
+        "usosPermiso", "coordenadasNad83", "sueloGeologico", "calificacionesEfectivas",
+      ];
+      fields.forEach((f) => {
+        setValue(f, result[f] || "", { shouldDirty: true });
+      });
+    },
+    [setValue]
+  );
+
+  const handleInputChange = useCallback(
+    (field: string, value: string) => {
+      setValue(field as keyof PermisoLocalizacion, value, { shouldDirty: true });
+    },
+    [setValue]
+  );
+
+  const currentValues = watch();
+
   return (
     <div style={{ padding: "20px 24px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
@@ -448,50 +490,17 @@ const Step3 = forwardRef<StepHandle, Step3Props>(function Step3({ data, onUpdate
       </div>
       <div style={{ fontSize: "13px", color: "#666", marginBottom: "12px" }}>Búsqueda por Catastro</div>
 
-      <div style={{ backgroundColor: "#e8f5e9", border: "1px solid #a5d6a7", borderRadius: "4px", padding: "12px 16px", marginBottom: "16px" }}>
-        <div style={{ fontSize: "13px", fontWeight: 700, marginBottom: "6px", color: "#333" }}>
-          Identifique la localización con una (1) de las siguientes opciones:
-        </div>
-        <ul style={{ margin: "0", paddingLeft: "20px", fontSize: "12px", color: "#555", lineHeight: 1.6 }}>
-          <li>Número de catastro</li>
-          <li>Coordenadas Geográficas o las coordenadas Lambert</li>
-          <li>Seleccionando la ubicación o parcela en el mapa a continuación (buscar sobre el mapa)</li>
-        </ul>
-      </div>
+      <LocationPicker
+        onResult={handleCatastroResult}
+        numeroCatastro={currentValues.numeroCatastro}
+        latitud={currentValues.latitud}
+        longitud={currentValues.longitud}
+        lambertX={currentValues.lambertX}
+        lambertY={currentValues.lambertY}
+        onInputChange={handleInputChange}
+      />
 
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-        <span style={{ fontSize: "13px", fontWeight: 700, width: "200px" }}>Número Catastro:</span>
-        <input type="text" placeholder="000-000-000-00" style={{ ...inputStyle, flex: 1 }} {...register("numeroCatastro")} />
-        <SearchBtn />
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-        <span style={{ fontSize: "13px", fontWeight: 700, width: "200px" }}>Coordenadas Geográficas:</span>
-        <span style={{ fontSize: "12px", color: "#666" }}>Latitud:</span>
-        <input type="text" placeholder="00.000" style={{ ...inputStyle, width: "120px" }} {...register("latitud")} />
-        <span style={{ fontSize: "12px", color: "#666" }}>Longitud:</span>
-        <input type="text" placeholder="00.000" style={{ ...inputStyle, width: "120px" }} {...register("longitud")} />
-        <SearchBtn />
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-        <span style={{ fontSize: "13px", fontWeight: 700, width: "200px" }}>Coordenadas Lambert:</span>
-        <span style={{ fontSize: "12px", color: "#666" }}>X:</span>
-        <input type="text" placeholder="0" style={{ ...inputStyle, width: "120px" }} {...register("lambertX")} />
-        <span style={{ fontSize: "12px", color: "#666" }}>Y:</span>
-        <input type="text" placeholder="0" style={{ ...inputStyle, width: "120px" }} {...register("lambertY")} />
-        <SearchBtn />
-      </div>
-
-      <div style={{
-        width: "100%", height: "300px", backgroundColor: "#e0e8e4",
-        borderRadius: "4px", border: "1px solid #ccc", marginBottom: "20px",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        color: "#666", fontSize: "14px",
-        backgroundImage: "linear-gradient(135deg, #d4e4dc 25%, #c8dcd2 50%, #d4e4dc 75%)",
-      }}>
-        Mapa de Puerto Rico (Esri/ArcGIS)
-      </div>
-
-      <h4 style={{ fontSize: "14px", fontWeight: 700, marginBottom: "12px" }}>Detalles del Catastro</h4>
+      <h4 style={{ fontSize: "14px", fontWeight: 700, margin: "20px 0 12px" }}>Detalles del Catastro</h4>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
         {([
           { label: "Número de catastro", field: "numeroCatastro" as const },
