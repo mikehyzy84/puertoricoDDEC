@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Project {
+  id              String    @id @default(cuid())
+  nombre          String
+  numero          String?   @unique
+  fechaCreacion   DateTime  @default(now())
+  duenoProyecto   String
+  duenoSolar      String?
+  permits         Permit[]
+  solicitudes     Solicitud[]
+  consultas       Consulta[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Permit {
+  id                    String    @id @default(cuid())
+  numero                String?   @unique
+  estado                String    @default("borrador")
+  projectId             String?
+  project               Project?  @relation(fields: [projectId], references: [id])
+
+  // Step 1: Proyecto o Actividad
+  nombre                String?
+  tipoZona              String?
+  tipoProyecto          String?
+  fondosFederales       String?
+  designacion           String?
+  descripcion           String?
+
+  // Step 2: Dueño del Proyecto
+  tipoDueno             String?
+  duenoIdentificacion   String?
+  duenoCompania         String?
+  tieneDecreto          Boolean?
+
+  // Step 3: Localización
+  numeroCatastro        String?
+  latitud               Float?
+  longitud              Float?
+  municipio             String?
+  barrio                String?
+
+  // Step 4: Catastros Adicionales
+  cabidaPropiedad       String?
+  tipoDireccion         String?
+  codigoPostal          String?
+  puntoReferencia       String?
+
+  // Step 5: Dueño del Solar
+  solarNombre           String?
+  solarApellido         String?
+  solarTelefono         String?
+  solarEmail            String?
+  solarDireccion        String?
+
+  // Step 6: Arrendatario
+  tieneArrendatario     Boolean?
+
+  documentos            Document[]
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Solicitud {
+  id                    String    @id @default(cuid())
+  numero                String?   @unique
+  tipo                  String    // APA, APS, ASP, CER, CIR
+  estado                String    @default("borrador")
+  municipio             String?
+  projectId             String?
+  project               Project?  @relation(fields: [projectId], references: [id])
+
+  // APA fields
+  licencia              String?
+  profesion             String?
+  expedicionColegiacion String?
+  expiracionColegiacion String?
+  expedicionLicencia    String?
+  expiracionLicencia    String?
+
+  // Generic fields for other types
+  descripcion           String?
+  datos                 Json?
+
+  documentos            Document[]
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Consulta {
+  id                    String    @id @default(cuid())
+  numero                String?   @unique
+  tipo                  String    // discrecionales, pca, pcd, pce, pci
+  subTipo               String?   // CCO, CUB, LOT (for discrecionales)
+  estado                String    @default("borrador")
+  municipio             String?
+  projectId             String?
+  project               Project?  @relation(fields: [projectId], references: [id])
+  descripcion           String?
+  datos                 Json?
+  documentos            Document[]
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Querella {
+  id                    String    @id @default(cuid())
+  numero                String?   @unique
+  estado                String    @default("borrador")
+  municipio             String?
+
+  // Información General
+  motivo                String?
+  tipoPermiso           String?
+  detallesViolaciones   String?
+  diaHoraViolaciones    String?
+  nombreCompania        String?
+  horarioOperacion      String?
+  comentariosGenerales  String?
+
+  // Contacto
+  direccion1            String?
+  direccion2            String?
+  pais                  String?   @default("United States")
+  estadoDireccion       String?   @default("Puerto Rico")
+  ciudad                String?
+  codigoPostal          String?
+  numeroCatastro        String?
+
+  documentos            Document[]
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Incentivo {
+  id                    String    @id @default(cuid())
+  numero                String?   @unique
+  tipoIncentivo         String
+  estado                String    @default("borrador")
+
+  // Solicitante
+  nombre                String?
+  apellido              String?
+  ciudadania            String?
+  identificacion        String?
+  telefono              String?
+  email                 String?
+  direccion             String?
+  municipio             String?
+  codigoPostal          String?
+
+  // Negocio
+  nombreNegocio         String?
+  codigoNAICS           String?
+  registroComerciante   String?
+  municipioNegocio      String?
+  fechaEstablecimiento  String?
+  numeroEmpleados       Int?
+  volumenVentasAnuales  Float?
+
+  // Detalles del Proyecto
+  descripcionProyecto   String?
+  impactoEconomico      String?
+  empleosCrear          Int?
+  montoInversion        Float?
+
+  documentos            Document[]
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Document {
+  id              String    @id @default(cuid())
+  nombre          String
+  descripcion     String?
+  tipo            String
+  requerido       Boolean   @default(false)
+  archivoUrl      String?
+  archivoNombre   String?
+
+  permitId        String?
+  permit          Permit?   @relation(fields: [permitId], references: [id])
+  solicitudId     String?
+  solicitud       Solicitud? @relation(fields: [solicitudId], references: [id])
+  consultaId      String?
+  consulta        Consulta? @relation(fields: [consultaId], references: [id])
+  querellaId      String?
+  querella        Querella? @relation(fields: [querellaId], references: [id])
+  incentivoId     String?
+  incentivo       Incentivo? @relation(fields: [incentivoId], references: [id])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
