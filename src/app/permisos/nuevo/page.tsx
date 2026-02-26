@@ -6,6 +6,9 @@ import dynamic from "next/dynamic";
 import { useForm, FieldErrors, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useWizard } from "@/hooks/useWizard";
+import { useVoiceAgent } from "@/components/voice/VoiceAgentProvider";
+import type { FormFillerHandle, WizardControlHandle } from "@/components/voice/VoiceAgentProvider";
+import { resolvePermisoField, PERMISO_STEP_LABELS } from "@/constants/fieldMappings";
 import { ZONAS } from "@/constants/zonas";
 import { TIPOS_PROYECTO, FONDOS_FEDERALES, DESIGNACIONES } from "@/constants/tiposProyecto";
 import { MUNICIPIOS } from "@/constants/municipios";
@@ -60,6 +63,7 @@ const INITIAL_DATA: PermisoFormData = {
 export interface StepHandle {
   validate: () => Promise<boolean>;
   getValues: () => Record<string, unknown>;
+  setFieldValue?: (field: string, value: string) => void;
 }
 
 // ---------- Style constants (unchanged from original) ----------
@@ -231,6 +235,12 @@ const Step1 = forwardRef<StepHandle, Step1Props>(function Step1({ data, onUpdate
   useImperativeHandle(ref, () => ({
     validate: () => trigger(),
     getValues: () => getValues() as unknown as Record<string, unknown>,
+    setFieldValue: (field: string, value: string) => {
+      setValue(field as keyof PermisoProyectoActividad, value as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
   }));
 
   const fondosFederalesValue = watch("fondosFederales");
@@ -336,6 +346,12 @@ const Step2 = forwardRef<StepHandle, Step2Props>(function Step2({ data, onUpdate
   useImperativeHandle(ref, () => ({
     validate: () => trigger(),
     getValues: () => getValues() as unknown as Record<string, unknown>,
+    setFieldValue: (field: string, value: string) => {
+      setValue(field as keyof PermisoDuenoProyecto, value as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
   }));
 
   const owner = watch("tipoDueno");
@@ -455,6 +471,12 @@ const Step3 = forwardRef<StepHandle, Step3Props>(function Step3({ data, onUpdate
   useImperativeHandle(ref, () => ({
     validate: () => trigger(),
     getValues: () => getValues() as unknown as Record<string, unknown>,
+    setFieldValue: (field: string, value: string) => {
+      setValue(field as keyof PermisoLocalizacion, value as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
   }));
 
   // When catastro lookup returns a result, populate all read-only detail fields
@@ -553,6 +575,12 @@ const Step4 = forwardRef<StepHandle, Step4Props>(function Step4({ data, onUpdate
   useImperativeHandle(ref, () => ({
     validate: () => trigger(),
     getValues: () => getValues() as unknown as Record<string, unknown>,
+    setFieldValue: (field: string, value: string) => {
+      setValue(field as keyof PermisoCatastrosAdicionales, value as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
   }));
 
   const tipoDireccionValue = watch("tipoDireccion");
@@ -628,7 +656,7 @@ interface Step5Props {
 }
 
 const Step5 = forwardRef<StepHandle, Step5Props>(function Step5({ data, onUpdate }, ref) {
-  const { register, formState: { errors }, trigger, getValues, watch } = useForm<PermisoDuenoSolar>({
+  const { register, formState: { errors }, trigger, getValues, setValue, watch } = useForm<PermisoDuenoSolar>({
     resolver: zodResolver(duenoSolarSchema) as Resolver<PermisoDuenoSolar>,
     defaultValues: data,
     mode: "onBlur",
@@ -644,6 +672,12 @@ const Step5 = forwardRef<StepHandle, Step5Props>(function Step5({ data, onUpdate
   useImperativeHandle(ref, () => ({
     validate: () => trigger(),
     getValues: () => getValues() as unknown as Record<string, unknown>,
+    setFieldValue: (field: string, value: string) => {
+      setValue(field as keyof PermisoDuenoSolar, value as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
   }));
 
   return (
@@ -735,6 +769,12 @@ const Step6 = forwardRef<StepHandle, Step6Props>(function Step6({ data, onUpdate
   useImperativeHandle(ref, () => ({
     validate: () => trigger(),
     getValues: () => getValues() as unknown as Record<string, unknown>,
+    setFieldValue: (field: string, value: string) => {
+      setValue(field as keyof PermisoArrendatario, value as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
   }));
 
   const tieneArrendatarioValue = watch("tieneArrendatario");
@@ -898,9 +938,112 @@ export default function PermisoWizard() {
     storageKey: "permiso-wizard-draft",
   });
 
-  const { goNext, goPrev, reset, updateStepData, currentStep, data: wizardData } = wizard;
+  const { goNext, goPrev, goToStep, reset, updateStepData, currentStep, data: wizardData } = wizard;
 
   const stepRef = useRef<StepHandle>(null);
+  const currentStepRef = useRef(currentStep);
+  currentStepRef.current = currentStep;
+  const wizardDataRef = useRef(wizardData);
+  wizardDataRef.current = wizardData;
+
+  const { registerForm, unregisterForm, registerWizardControl, unregisterWizardControl } = useVoiceAgent();
+
+  // ── Voice agent: form filler ──────────────────────────────────
+
+  useEffect(() => {
+    const handle: FormFillerHandle = {
+      fillField: (fieldKey: string, value: string): boolean => {
+        const resolved = resolvePermisoField(fieldKey);
+        if (!resolved) return false;
+
+        const { stepIndex, localFieldName } = resolved;
+        if (stepIndex !== currentStepRef.current) {
+          // Auto-navigate to the correct step, then fill on next render
+          goToStep(stepIndex);
+          // Use a short delay to let the step mount before filling
+          setTimeout(() => {
+            stepRef.current?.setFieldValue?.(localFieldName, value);
+          }, 100);
+          return true;
+        }
+
+        if (stepRef.current?.setFieldValue) {
+          stepRef.current.setFieldValue(localFieldName, value);
+          return true;
+        }
+        return false;
+      },
+      highlightField: (fieldKey: string) => {
+        const resolved = resolvePermisoField(fieldKey);
+        if (!resolved) return;
+        const el =
+          document.querySelector<HTMLElement>(`[name="${resolved.localFieldName}"]`) ||
+          document.getElementById(resolved.localFieldName);
+        if (el) {
+          el.classList.add("voice-field-highlight");
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          setTimeout(() => el.classList.remove("voice-field-highlight"), 1500);
+        }
+      },
+      scrollFormIntoView: () => {
+        const form = document.querySelector("form");
+        if (form) form.scrollIntoView({ behavior: "smooth", block: "start" });
+      },
+    };
+
+    registerForm("permiso", handle);
+    return () => unregisterForm("permiso");
+  }, [registerForm, unregisterForm, goToStep]);
+
+  // ── Voice agent: wizard control ───────────────────────────────
+
+  useEffect(() => {
+    const handle: WizardControlHandle = {
+      goNext: async () => {
+        if (stepRef.current) {
+          const valid = await stepRef.current.validate();
+          if (!valid) return "No se puede avanzar: hay campos inválidos en el paso actual.";
+        }
+        goNext();
+        return `Avanzando al paso ${currentStepRef.current + 2} de 8: ${PERMISO_STEP_LABELS[currentStepRef.current + 1] ?? ""}`;
+      },
+      goPrev: () => {
+        if (currentStepRef.current === 0) return "Ya estás en el primer paso.";
+        goPrev();
+        return `Retrocediendo al paso ${currentStepRef.current} de 8: ${PERMISO_STEP_LABELS[currentStepRef.current - 1] ?? ""}`;
+      },
+      goToStep: (step: number) => {
+        if (step < 0 || step >= 8) return `Paso inválido. Los pasos van del 1 al 8.`;
+        goToStep(step);
+        return `Navegando al paso ${step + 1} de 8: ${PERMISO_STEP_LABELS[step]}`;
+      },
+      getCurrentStep: () => ({
+        step: currentStepRef.current,
+        total: 8,
+        label: PERMISO_STEP_LABELS[currentStepRef.current],
+      }),
+      getFormState: () => {
+        const d = wizardDataRef.current;
+        const summary: Record<string, Record<string, string>> = {};
+        const stepKeys: (keyof PermisoFormData)[] = [
+          "proyectoActividad", "duenoProyecto", "localizacion",
+          "catastrosAdicionales", "duenoSolar", "arrendatario",
+        ];
+        stepKeys.forEach((key, idx) => {
+          const stepData = d[key] as unknown as Record<string, string>;
+          const fields: Record<string, string> = {};
+          for (const [k, v] of Object.entries(stepData)) {
+            fields[k] = v || "(vacío)";
+          }
+          summary[`Paso ${idx + 1}: ${PERMISO_STEP_LABELS[idx]}`] = fields;
+        });
+        return JSON.stringify(summary, null, 2);
+      },
+    };
+
+    registerWizardControl("permiso", handle);
+    return () => unregisterWizardControl("permiso");
+  }, [registerWizardControl, unregisterWizardControl, goNext, goPrev, goToStep]);
 
   // Validate current step before advancing
   const handleNext = useCallback(async () => {

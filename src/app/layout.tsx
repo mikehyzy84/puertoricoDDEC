@@ -7,6 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import GlobalBusquedaModal from "@/components/GlobalBusquedaModal";
 import { VoiceAgentProvider } from "@/components/voice/VoiceAgentProvider";
 import VoiceAgentWidget from "@/components/voice/VoiceAgentWidget";
+import VoiceNavigatorBridge from "@/components/voice/VoiceNavigatorBridge";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -40,6 +41,7 @@ export default function RootLayout({
             {children}
             <GlobalBusquedaModal />
           </BusquedaModalProvider>
+          <VoiceNavigatorBridge />
           <VoiceAgentWidget />
         </VoiceAgentProvider>
       </body>

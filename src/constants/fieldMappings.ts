@@ -113,6 +113,62 @@ export const INCENTIVO_FIELD_MAP: FieldMapping = {
   investment_amount: "montoInversion",
 };
 
+// ── Permiso step resolution ─────────────────────────────────────
+
+const PERMISO_STEP_PREFIXES: Record<string, number> = {
+  proyectoActividad: 0,
+  duenoProyecto: 1,
+  localizacion: 2,
+  catastrosAdicionales: 3,
+  duenoSolar: 4,
+  arrendatario: 5,
+};
+
+export const PERMISO_STEP_LABELS = [
+  "Proyecto o Actividad",
+  "Dueño del Proyecto",
+  "Localización",
+  "Catastros Adicionales",
+  "Dueño del Solar",
+  "Arrendatario",
+  "Documentos",
+  "Finish",
+] as const;
+
+/**
+ * Resolve an agent field key to its step index and local form field name.
+ * e.g. "project_name" → { stepIndex: 0, localFieldName: "nombre" }
+ */
+export function resolvePermisoField(
+  agentFieldKey: string,
+): { stepIndex: number; localFieldName: string } | null {
+  const fullPath = PERMISO_FIELD_MAP[agentFieldKey];
+  if (!fullPath) return null;
+
+  const dotIndex = fullPath.indexOf(".");
+  if (dotIndex === -1) return null;
+
+  const prefix = fullPath.substring(0, dotIndex);
+  const localFieldName = fullPath.substring(dotIndex + 1);
+  const stepIndex = PERMISO_STEP_PREFIXES[prefix];
+
+  if (stepIndex === undefined) return null;
+  return { stepIndex, localFieldName };
+}
+
+// ── Page route mapping for voice navigation ─────────────────────
+
+export const PAGE_ROUTES: Record<string, string> = {
+  inicio: "/",
+  dashboard: "/",
+  permisos: "/permisos/nuevo",
+  permiso: "/permisos/nuevo",
+  solicitudes: "/solicitudes",
+  consultas: "/consultas",
+  querellas: "/querellas",
+  incentivos: "/incentivos",
+};
+
 // ── Lookup helper ────────────────────────────────────────────────
 
 const ALL_MAPPINGS: Record<string, FieldMapping> = {

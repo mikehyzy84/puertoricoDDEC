@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useConversation } from "@elevenlabs/react";
+import { PAGE_ROUTES } from "@/constants/fieldMappings";
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -23,6 +24,19 @@ export interface FormFillerHandle {
   fillField: (fieldKey: string, value: string) => boolean;
   highlightField: (fieldKey: string) => void;
   scrollFormIntoView: () => void;
+}
+
+export interface NavigatorHandle {
+  navigate: (path: string) => void;
+  getCurrentPath: () => string;
+}
+
+export interface WizardControlHandle {
+  goNext: () => Promise<string>;
+  goPrev: () => string;
+  goToStep: (step: number) => string;
+  getCurrentStep: () => { step: number; total: number; label: string };
+  getFormState: () => string;
 }
 
 export type VoiceLanguage =
@@ -74,6 +88,14 @@ interface VoiceAgentState {
   registerForm: (formId: string, handle: FormFillerHandle) => void;
   unregisterForm: (formId: string) => void;
 
+  /** Navigator registration (used by VoiceNavigatorBridge) */
+  registerNavigator: (handle: NavigatorHandle) => void;
+  unregisterNavigator: () => void;
+
+  /** Wizard control registration (used by wizard pages) */
+  registerWizardControl: (id: string, handle: WizardControlHandle) => void;
+  unregisterWizardControl: (id: string) => void;
+
   /** First visit pulse — set to false after first interaction */
   showPulse: boolean;
   dismissPulse: () => void;
@@ -102,6 +124,8 @@ export function VoiceAgentProvider({ children }: { children: ReactNode }) {
 
   const nextIdRef = useRef(0);
   const formsRef = useRef<Map<string, FormFillerHandle>>(new Map());
+  const navigatorRef = useRef<NavigatorHandle | null>(null);
+  const wizardControlsRef = useRef<Map<string, WizardControlHandle>>(new Map());
 
   // ── Form filler registry ───────────────────────────────────────
 
@@ -112,6 +136,28 @@ export function VoiceAgentProvider({ children }: { children: ReactNode }) {
   const unregisterForm = useCallback((formId: string) => {
     formsRef.current.delete(formId);
   }, []);
+
+  // ── Navigator registry ─────────────────────────────────────────
+
+  const registerNavigator = useCallback((handle: NavigatorHandle) => {
+    navigatorRef.current = handle;
+  }, []);
+
+  const unregisterNavigator = useCallback(() => {
+    navigatorRef.current = null;
+  }, []);
+
+  // ── Wizard control registry ────────────────────────────────────
+
+  const registerWizardControl = useCallback((id: string, handle: WizardControlHandle) => {
+    wizardControlsRef.current.set(id, handle);
+  }, []);
+
+  const unregisterWizardControl = useCallback((id: string) => {
+    wizardControlsRef.current.delete(id);
+  }, []);
+
+  // ── Client tool implementations ────────────────────────────────
 
   /** Attempt to fill a field on whichever form is currently registered. */
   const fillFormField = useCallback(
@@ -141,6 +187,24 @@ export function VoiceAgentProvider({ children }: { children: ReactNode }) {
       handles[i].scrollFormIntoView();
     }
     return "Mostrando resumen del formulario";
+  }, []);
+
+  const navigateToPage = useCallback((page: string): string => {
+    const nav = navigatorRef.current;
+    if (!nav) return "Navegación no disponible.";
+
+    const route = PAGE_ROUTES[page.toLowerCase()];
+    if (!route) {
+      return `Página "${page}" no reconocida. Páginas disponibles: ${Object.keys(PAGE_ROUTES).join(", ")}`;
+    }
+
+    nav.navigate(route);
+    return `Navegando a ${page} (${route})`;
+  }, []);
+
+  const getActiveWizard = useCallback((): WizardControlHandle | null => {
+    const entries = Array.from(wizardControlsRef.current.values());
+    return entries.length > 0 ? entries[0] : null;
   }, []);
 
   // ── Transcript helpers ─────────────────────────────────────────
@@ -178,6 +242,35 @@ export function VoiceAgentProvider({ children }: { children: ReactNode }) {
       },
       show_form_summary: async () => {
         return showFormSummary();
+      },
+      navigate_to_page: async (params: { page: string }) => {
+        return navigateToPage(params.page);
+      },
+      go_to_next_step: async () => {
+        const wiz = getActiveWizard();
+        if (!wiz) return "No hay formulario de pasos activo.";
+        return wiz.goNext();
+      },
+      go_to_previous_step: async () => {
+        const wiz = getActiveWizard();
+        if (!wiz) return "No hay formulario de pasos activo.";
+        return wiz.goPrev();
+      },
+      go_to_step: async (params: { step_number: number }) => {
+        const wiz = getActiveWizard();
+        if (!wiz) return "No hay formulario de pasos activo.";
+        return wiz.goToStep(params.step_number);
+      },
+      get_current_step: async () => {
+        const wiz = getActiveWizard();
+        if (!wiz) return "No hay formulario de pasos activo.";
+        const info = wiz.getCurrentStep();
+        return `Paso ${info.step + 1} de ${info.total}: ${info.label}`;
+      },
+      get_form_state: async () => {
+        const wiz = getActiveWizard();
+        if (!wiz) return "No hay formulario activo.";
+        return wiz.getFormState();
       },
     },
   });
@@ -259,6 +352,10 @@ export function VoiceAgentProvider({ children }: { children: ReactNode }) {
         clearError,
         registerForm,
         unregisterForm,
+        registerNavigator,
+        unregisterNavigator,
+        registerWizardControl,
+        unregisterWizardControl,
         showPulse,
         dismissPulse,
       }}
