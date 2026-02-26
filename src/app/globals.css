@@ -235,6 +235,12 @@
   cursor: pointer;
 }
 
+.voice-panel-lang-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
 .voice-panel-lang-select:focus-visible {
   outline: 2px solid #005DA6;
   outline-offset: 1px;
@@ -487,5 +493,22 @@
     border-radius: 16px 16px 0 0;
     position: fixed;
     left: 16px;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .voice-launcher,
+  .voice-launcher-pulse,
+  .voice-launcher-active,
+  .voice-panel,
+  .voice-waveform-listening span,
+  .voice-waveform-speaking span,
+  .voice-spinner,
+  .voice-field-highlight,
+  .voice-btn {
+    animation: none !important;
+    transition: none !important;
   }
 }

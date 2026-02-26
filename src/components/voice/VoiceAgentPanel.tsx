@@ -29,6 +29,18 @@ export default function VoiceAgentPanel() {
     transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [transcript]);
 
+  // Escape key closes the panel
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closePanel();
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [isOpen, closePanel]);
+
   if (!isOpen) return null;
 
   const isConnected = status === "connected";
@@ -83,8 +95,8 @@ export default function VoiceAgentPanel() {
           id="voice-language-select"
           value={language}
           onChange={(e) => setLanguage(e.target.value as VoiceLanguage)}
+          disabled={isConnected || isConnecting}
           className="voice-panel-lang-select"
-          aria-label="Seleccionar idioma"
         >
           {(Object.entries(LANGUAGE_LABELS) as [VoiceLanguage, string][]).map(
             ([code, label]) => (

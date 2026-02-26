@@ -76,9 +76,7 @@ export function useFormFiller<T extends FieldValues>({
 
 function findInputElement(formPath: string): HTMLElement | null {
   // Try by name (React Hook Form sets name attr on inputs)
-  const byName =
-    document.querySelector<HTMLElement>(`[name="${formPath}"]`) ??
-    document.querySelector<HTMLElement>(`[name="${formPath.replace(/\./g, ".")}"]`);
+  const byName = document.querySelector<HTMLElement>(`[name="${formPath}"]`);
   if (byName) return byName;
 
   // Try by id

@@ -25,7 +25,6 @@ export default function VoiceAgentWidget() {
             isConnected ? "voice-launcher-active" : ""
           }`}
           aria-label="Abrir asistente de voz Benito"
-          aria-expanded={isOpen}
           aria-haspopup="dialog"
         >
           <svg
