@@ -5,6 +5,8 @@ import "@arcgis/core/assets/esri/themes/light/main.css";
 import { BusquedaModalProvider } from "@/context/BusquedaModalContext";
 import Navbar from "@/components/layout/Navbar";
 import GlobalBusquedaModal from "@/components/GlobalBusquedaModal";
+import { VoiceAgentProvider } from "@/components/voice/VoiceAgentProvider";
+import VoiceAgentWidget from "@/components/voice/VoiceAgentWidget";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,11 +34,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <BusquedaModalProvider>
-          <Navbar />
-          {children}
-          <GlobalBusquedaModal />
-        </BusquedaModalProvider>
+        <VoiceAgentProvider>
+          <BusquedaModalProvider>
+            <Navbar />
+            {children}
+            <GlobalBusquedaModal />
+          </BusquedaModalProvider>
+          <VoiceAgentWidget />
+        </VoiceAgentProvider>
       </body>
     </html>
   );
