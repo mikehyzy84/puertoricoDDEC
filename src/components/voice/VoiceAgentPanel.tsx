@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useVoiceAgent,
   LANGUAGE_LABELS,
@@ -164,6 +164,9 @@ export default function VoiceAgentPanel() {
         <div ref={transcriptEndRef} />
       </div>
 
+      {/* ── Demo: simulate agent filling a field ─────────────── */}
+      <DemoFillButton />
+
       {/* ── Controls ────────────────────────────────────────────── */}
       <div className="voice-panel-controls">
         {!isConnected && !isConnecting && !isDisconnecting && (
@@ -230,5 +233,66 @@ function SpinnerIcon() {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="voice-spinner" aria-hidden="true">
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
+  );
+}
+
+// ── Demo button — simulates agent filling a form field ───────────
+
+const DEMO_STEPS = [
+  { key: "project_name", value: "Centro Comercial Plaza del Sol", label: "Nombre del Proyecto" },
+  { key: "zone_type", value: "Urbano", label: "Tipo de Zona" },
+  { key: "project_type", value: "Privado", label: "Tipo de Proyecto" },
+  { key: "federal_funds", value: "No aplica", label: "Fondos Federales" },
+  { key: "designation", value: "No aplica", label: "Designación" },
+  { key: "description", value: "Construcción de un centro comercial de 3 niveles con estacionamiento subterráneo en el municipio de San Juan.", label: "Descripción" },
+] as const;
+
+function DemoFillButton() {
+  const { fillField } = useVoiceAgent();
+  const [demoIndex, setDemoIndex] = useState(0);
+  const [lastResult, setLastResult] = useState<string | null>(null);
+
+  const handleDemo = () => {
+    const step = DEMO_STEPS[demoIndex];
+    const result = fillField(step.key, step.value);
+    setLastResult(result);
+    setDemoIndex((prev) => (prev + 1) % DEMO_STEPS.length);
+  };
+
+  return (
+    <div style={{
+      padding: "8px 16px",
+      borderTop: "1px solid #e2e8f0",
+      fontSize: "12px",
+    }}>
+      <button
+        onClick={handleDemo}
+        style={{
+          width: "100%",
+          padding: "8px 12px",
+          backgroundColor: "#2b8a7a",
+          color: "#fff",
+          border: "none",
+          borderRadius: "6px",
+          fontSize: "12px",
+          fontWeight: 600,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "6px",
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <polygon points="5 3 19 12 5 21 5 3" />
+        </svg>
+        Demo: Llenar &quot;{DEMO_STEPS[demoIndex].label}&quot;
+      </button>
+      {lastResult && (
+        <div style={{ marginTop: "4px", color: "#666", textAlign: "center" }}>
+          {lastResult}
+        </div>
+      )}
+    </div>
   );
 }

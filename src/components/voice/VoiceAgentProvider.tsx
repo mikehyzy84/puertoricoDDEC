@@ -96,6 +96,9 @@ interface VoiceAgentState {
   registerWizardControl: (id: string, handle: WizardControlHandle) => void;
   unregisterWizardControl: (id: string) => void;
 
+  /** Direct fill — used by demo button and tests */
+  fillField: (fieldKey: string, value: string) => string;
+
   /** First visit pulse — set to false after first interaction */
   showPulse: boolean;
   dismissPulse: () => void;
@@ -356,6 +359,7 @@ export function VoiceAgentProvider({ children }: { children: ReactNode }) {
         unregisterNavigator,
         registerWizardControl,
         unregisterWizardControl,
+        fillField: fillFormField,
         showPulse,
         dismissPulse,
       }}
